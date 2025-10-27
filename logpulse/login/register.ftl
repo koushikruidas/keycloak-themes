@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - ${realm.displayName!}</title>
+    <title>Register - ${realm.displayName!}</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' stroke='%234CAF50' stroke-width='2'/><path d='M30 50h40' stroke='%234CAF50' stroke-width='2'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -31,12 +31,11 @@
             color: #2c3e50;
             line-height: 1.6;
             margin: 0;
-            min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
 
         .hero {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -49,7 +48,7 @@
 
         .hero::before {
             content: '';
-            position: absolute;
+            position: fixed;
             width: 200%;
             height: 200%;
             background: radial-gradient(circle at center, rgba(76, 175, 80, 0.1) 0%, transparent 50%);
@@ -58,7 +57,8 @@
 
         .content {
             max-width: 1200px;
-            margin: 0 auto;
+            width: 100%;
+            margin: 2rem auto;
             text-align: center;
             position: relative;
             z-index: 1;
@@ -105,10 +105,15 @@
             border-radius: 20px;
             padding: 2rem;
             margin-top: 2rem;
-            max-width: 400px;
+            max-width: 520px;
             margin-left: auto;
             margin-right: auto;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .row {
+            display: flex;
+            gap: 0.75rem;
         }
 
         .filter-group {
@@ -222,8 +227,31 @@
             }
             
             .glass-card {
-                margin: 1rem;
+                margin: 1rem auto;
                 padding: 1.5rem;
+            }
+
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .row > div {
+                margin-bottom: 1rem;
+            }
+        }
+
+        @media (max-height: 800px) {
+            .hero {
+                padding: 1rem;
+            }
+
+            .content {
+                margin: 1rem auto;
+            }
+
+            .glass-card {
+                margin: 1rem auto;
             }
         }
     </style>
@@ -235,7 +263,6 @@
                 <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="50" cy="50" r="45" stroke="url(#gradient)" stroke-width="2"/>
                     <path d="M30 50h40" stroke="url(#gradient)" stroke-width="2" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100">
-                        <!-- Step 1: Line drawing with wave motion (0-3s) -->
                         <animate 
                             attributeName="stroke-dashoffset" 
                             from="100" 
@@ -277,63 +304,59 @@
                     </defs>
                 </svg>
             </div>
-            <h1>Welcome to ${realm.displayName!}</h1>
-            <p class="subtitle">Sign in to access your dashboard</p>
+            <h1>Create an account</h1>
+            <p class="subtitle">Register to access the ${realm.displayName!} dashboard</p>
             
             <div class="glass-card">
                 <#if message?? && message?has_content>
                     <div class="error-message">
-                        <#if message.type = 'error'>
-                            <#if message.summary = 'invalidUserMessage'>
-                                Invalid username or password
-                            <#elseif message.summary = 'userNotFoundMessage'>
-                                User not found
-                            <#elseif message.summary = 'invalidCredentialsMessage'>
-                                Invalid credentials
-                            <#elseif message.summary = 'accountDisabledMessage'>
-                                Account is disabled
-                            <#elseif message.summary = 'accountTemporarilyDisabledMessage'>
-                                Account is temporarily disabled
-                            <#elseif message.summary = 'expiredCodeMessage'>
-                                Your session has expired
-                            <#elseif message.summary = 'expiredActionMessage'>
-                                Your action has expired
-                            <#else>
-                                ${kcSanitize(message.summary)?no_esc}
-                            </#if>
-                        <#else>
-                            ${kcSanitize(message.summary)?no_esc}
-                        </#if>
+                        ${kcSanitize(message.summary)?no_esc}
                     </div>
                 </#if>
 
-                <form id="kc-form-login" action="${url.loginAction}" method="post">
+                <form id="kc-registration-form" action="${url.registrationAction}" method="post">
+                    <div class="row" style="margin-bottom:0.75rem">
+                        <div style="flex:1">
+                            <label for="firstName">First name</label>
+                            <input id="firstName" name="firstName" type="text" value="${firstName!}" />
+                        </div>
+                        <div style="flex:1">
+                            <label for="lastName">Last name</label>
+                            <input id="lastName" name="lastName" type="text" value="${lastName!}" />
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="email">Email</label>
+                        <input id="email" name="email" type="email" value="${email!}" />
+                    </div>
+
                     <div class="filter-group">
                         <label for="username">Username</label>
-                        <input tabindex="1" id="username" name="username" value="${username!}" type="text" autofocus="autofocus"/>
+                        <input id="username" name="username" type="text" value="${username!}" />
                     </div>
 
                     <div class="filter-group">
                         <label for="password">Password</label>
-                        <input tabindex="2" id="password" name="password" type="password"/>
+                        <input id="password" name="password" type="password" />
                     </div>
 
-                    <button tabindex="3" class="btn-primary" type="submit">Login</button>
-
-                    <div style="text-align: center; margin-top: 0.5rem;">
-                        <a href="${url.loginResetCredentialsUrl}" class="btn-secondary">Forgot password?</a>
+                    <div class="filter-group">
+                        <label for="password-confirm">Confirm password</label>
+                        <input id="password-confirm" name="password-confirm" type="password" />
                     </div>
+
+                    <button class="btn-primary" type="submit">Register</button>
                 </form>
 
-                <p style="margin-top: 1.5rem; text-align: center; color: #2c3e50; opacity: 0.8;">
-                    Don't have an account? <a href="${url.registrationUrl}" style="color: #4CAF50; text-decoration: none; font-weight: 500;">Register</a>
-                </p>
+                <div style="text-align: center; margin-top: 0.75rem;">
+                    <a class="btn-secondary" href="${url.loginUrl}">Back to Login</a>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
-        // Add smooth interactions
         document.addEventListener('DOMContentLoaded', function() {
             const inputs = document.querySelectorAll('input');
             inputs.forEach(input => {
